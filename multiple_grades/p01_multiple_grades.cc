@@ -12,6 +12,7 @@
  * Contiene la función main para ejecutar el análisis de calificaciones únicas.
  * Historial de revisiones:
  *   12/09/2026 - Creación del código
+ *   15/09/2026 - Revisión código (pulir)
  */
 
 #include "multiple_grades.h"
@@ -19,31 +20,45 @@
 #include <iostream>
 #include <string>
 
-// Función auxiliar para mostrar la ayuda del programa
-void Usage(int argc, char* argv[]) {
+
+void PrintUsage(const std::string& program_name) {
+  std::cout << "Modo de empleo: " << program_name << " <fichero_entrada.txt>\n";
+  std::cout << "Pruebe '" << program_name << " --help' para más información.\n";
+}
+
+
+int main(int argc, char* argv[]) {
   if (argc == 2) {
     std::string parameter = argv[1];
     if (parameter == "--help" || parameter == "-h") {
       std::cout << "Uso: " << argv[0] << " <fichero_entrada.txt>\n";
-      std::cout << "Procesa un fichero con identificadores de alumno y notas, almacenando únicamente la calificación más alta de cada estudiante.\n";
-      exit(EXIT_SUCCESS); // Exit(0)
+      std::cout << "Procesa un fichero con identificadores de alumno y notas.\n";
+      return 0;
     }
   }
   if (argc != 2) {
-    std::cout << "Error en los argumentos. Pruebe '" << argv[0] << " --help' para más información.\n";
-    exit(EXIT_FAILURE); // Exit(1)
+    PrintUsage(argv[0]);
+    return 1;
   }
-}
-
-int main(int argc, char* argv[]) {
-  // Verificación de argumentos
-  Usage(argc, argv);
   std::string filename = argv[1];
   MultipleGradesAnalyzer analyzer;
   // Lectura y procesamiento del archivo txt
   if (!analyzer.ReadFromFile(filename)) {
     std::cerr << "Error al procesar el archivo " << filename << std::endl;
     return 1;
+  }
+  char option;
+  std::cout << "\n¿Desea insertar una nueva calificación individualmente? (s/n): ";
+  // Lectura de nueva nota
+  while (std::cin >> option && (option == 's' || option == 'S')) {
+    std::string alu;
+    double grade;
+    std::cout << "Introduzca alu y nota (ej. aluXXXXXXXXXX 8.5): ";
+    if (std::cin >> alu >> grade) {
+      analyzer.AddGrade(alu, grade);
+      std::cout << "Calificación registrada correctamente.\n";
+    }
+    std::cout << "¿Desea insertar otra calificación? (s/n): ";
   }
   // Mostrar resultados
   analyzer.DisplayGrades();
